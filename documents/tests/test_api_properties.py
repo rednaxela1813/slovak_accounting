@@ -29,3 +29,4 @@ def test_document_property_list_api():
     assert response.status_code == 200
     assert len(response.data) == 1
     assert response.data[0]["name"] == "Faktúra od dodávateľa"
+

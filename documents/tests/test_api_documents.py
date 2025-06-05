@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from custom_user.models import CustomUser
 from django.core.files.uploadedfile import SimpleUploadedFile
 from documents.models import Document
+import os
 
 
 @pytest.mark.django_db
@@ -30,6 +31,11 @@ def test_upload_incoming_document():
     assert response.status_code == 201
     assert 'document_id' in response.data
     assert response.data['title'] == "Faktúra 2024/05"
+    
+    #delete pdf file after test
+    document = Document.objects.get(document_id=response.data['document_id'])
+    if document.file and os.path.exists(document.file.path):
+        os.remove(document.file.path)
     
         
         
@@ -68,3 +74,30 @@ def test_filter_documents(authenticated_client):
     response = authenticated_client.get("/api/documents/?document_type=invoice")
     assert response.status_code == 200
     assert all(doc['document_type'] == 'invoice' for doc in response.json())
+    
+    
+@pytest.mark.django_db
+def test_document_filter_by_type(authenticated_client):
+    # Загружаем два документа разных типов
+    file1 = SimpleUploadedFile("doc1.pdf", b"file_content_1", content_type="application/pdf")
+    file2 = SimpleUploadedFile("doc2.pdf", b"file_content_2", content_type="application/pdf")
+
+    authenticated_client.post("/api/documents/", {
+        "title": "Invoice 1",
+        "document_type": "invoice",
+        "file": file1,
+        "date": "2024-01-01"
+    }, format='multipart')
+
+    authenticated_client.post("/api/documents/", {
+        "title": "Contract 1",
+        "document_type": "contract",
+        "file": file2,
+        "date": "2024-01-02"
+    }, format='multipart')
+
+    # Фильтруем только invoices
+    response = authenticated_client.get("/api/documents/?document_type=invoice")
+    assert response.status_code == 200
+    assert len(response.data) == 1
+    assert response.data[0]['document_type'] == 'invoice'
