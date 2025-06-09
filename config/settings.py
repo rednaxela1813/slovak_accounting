@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    
     'rest_framework',
     'django_filters',
     
@@ -49,6 +50,9 @@ INSTALLED_APPS = [
     'orders',
     'documents',
     'partners',
+    
+    'drf_spectacular',
+    'drf_spectacular_sidecar',  # For serving static files in production
 ]
 
 MIDDLEWARE = [
@@ -154,5 +158,12 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'My API',
+    'DESCRIPTION': 'Документация для API партнёров',
+    'VERSION': '1.0.0',
+}
