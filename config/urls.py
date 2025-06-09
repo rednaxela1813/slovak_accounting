@@ -14,5 +14,7 @@ urlpatterns = [
     path('api/', include(orders.order_router)),
     path('api/', include('accounting.api_urls')),
     path('api/documents/', include('documents.urls')),
+    path('api/partners/', include('partners.urls')),
+    
     
 ]
